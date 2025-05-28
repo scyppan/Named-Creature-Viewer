@@ -28,10 +28,9 @@ function loadcreature(named) {
 }
 
 function randbetween(lo, hi) {
-    const lo = parseInt(lo);
-    const hi = parseInt(hi);
-
-    return Math.floor(Math.random() * (hi - lo + 1)) + lo;
+  lo = parseInt(lo);
+  hi = parseInt(hi);
+  return Math.floor(Math.random() * (hi - lo + 1)) + lo;
 }
 
 function renderdemographics(species) {
