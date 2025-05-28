@@ -61,7 +61,7 @@ function createresultlisting(result) {
     li.textContent = result.meta.namedcreaturesname;
     li.addEventListener('click', () => {
         document.getElementById('suggestions').remove();
-        loadcreature(result.meta.namedcreaturesname);
+        loadcreature(result);
     });
     return li;
 }

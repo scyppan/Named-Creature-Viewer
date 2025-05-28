@@ -1,20 +1,18 @@
 let currentnamed;
 
 function loadcreature(named) {
-    currentnamed = Object.values(named).find(
-        c => c.meta?.namedcreaturesname === named
-    );
+    currentnamed=named;
 
     const container = document.getElementById("creaturecontainer");
     container.innerHTML = ''; // clear old content
 
     const species = currentnamed.meta?.namedcreaturesspecies;
     const matchingspecies = Object.values(creatures).filter(cr =>
-        cr.meta?.creaturename === c.meta?.namedcreaturesspecies
-    );
+        cr.meta?.creaturename === currentnamed.meta?.namedcreaturesspecies
+    )[0];
 
     container.appendChild(renderdemographics(matchingspecies));
-    //container.appendChild(renderwoundstats());
+    container.appendChild(renderwoundstats());
     //container.appendChild(renderdescription());
     //container.appendChild(renderintelligenceandmovement());
     //container.appendChild(rendersocialrules());
@@ -34,22 +32,18 @@ function randbetween(lo, hi) {
 }
 
 function renderdemographics(species) {
-
     const el = document.createElement('div');
     el.classList.add('creature-section', 'demographics');
-    el.textContent = `${currentnamed.meta.namedcreaturesname} (${species} | ${species.meta.creaturetype} | Size: ${currentnamed.meta.namedcreaturessize})`;
+    el.textContent = `${currentnamed.meta.namedcreaturesname} (${species.meta.creaturename} | ${species.meta.creaturetype} | Size: ${currentnamed.meta.namedcreaturessize})`;
     return el;
 }
 
 function renderwoundstats() {
-    const { woundcaplo, woundcaphi, magicalresistlo, magicalresisthi } = currentcreature.meta;
 
-    const cap = randbetween(woundcaplo, woundcaphi);
-    let text = `Heavy Wound Cap: ${cap}`;
+    let text = `Heavy Wound Cap: ${currentnamed.meta.namedcreaturesheavywoundcap}`;
 
-    if (magicalresistlo && magicalresisthi) {
-        const res = randbetween(magicalresistlo, magicalresisthi);
-        text += ` | Res. ${res}`;
+    if (currentnamed.meta.namedcreaturesresistance) {
+        text += ` | Res. ${currentnamed.meta.namedcreaturesresistance}`;
     }
 
     const el = document.createElement('div');
