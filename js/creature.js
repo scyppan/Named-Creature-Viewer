@@ -6,16 +6,15 @@ function loadcreature(named) {
     const container = document.getElementById("creaturecontainer");
     container.innerHTML = ''; // clear old content
 
-    const species = currentnamed.meta?.namedcreaturesspecies;
     const matchingspecies = Object.values(creatures).filter(cr =>
         cr.meta?.creaturename === currentnamed.meta?.namedcreaturesspecies
     )[0];
 
     container.appendChild(renderdemographics(matchingspecies));
     container.appendChild(renderwoundstats());
-    //container.appendChild(renderdescription());
-    //container.appendChild(renderintelligenceandmovement());
-    //container.appendChild(rendersocialrules());
+    container.appendChild(renderdescription(matchingspecies));
+    container.appendChild(renderintelligenceandmovement());
+    container.appendChild(rendersocialrules(matchingspecies));
     //container.appendChild(renderabilities());
     //container.appendChild(renderattacks());
 
@@ -52,40 +51,37 @@ function renderwoundstats() {
     return el;
 }
 
-function renderdescription() {
+function renderdescription(species) {
     const el = document.createElement('div');
     el.classList.add('creature-section', 'description');
-    el.textContent = currentcreature.meta.description || '[No description]';
+    el.textContent = species.meta.description || '[No description]';
     return el;
 }
 
 function renderintelligenceandmovement() {
-    const m = currentcreature.meta;
+    const m = currentnamed.meta;
     let text = '';
 
-    if (m.beastintello && m.beastintelhi) {
-        const val = randbetween(m.beastintello, m.beastintelhi);
-        text += `Beastial Intel: ${val}`;
-    } else if (m.humanintello && m.humanintelhi) {
-        const val = randbetween(m.humanintello, m.humanintelhi);
-        text += `Human Intel: ${val}`;
+    if (m.namedcreaturesbeastintel) {
+        text += `Beastial Intel: ${m.namedcreaturesbeastintel}`;
+    } else if (m.namedcreatureshumanintel) {
+        text += `Human Intel: ${m.namedcreatureshumanintel}`;
     }
 
-    if (m.sociallo && m.socialhi) {
-        const val = randbetween(m.sociallo, m.socialhi);
-        text += ` | Human Social Skills: ${val}`;
+    if (m.namedcreatureshumansocial) {
+        text += ` | Human Social Skills: ${m.namedcreatureshumansocial}`;
     }
 
-    const ground = (m.groundlo && m.groundhi)
-        ? randbetween(m.groundlo, m.groundhi)
+    const ground = (m.namedcreaturesground)
+        ? m.namedcreaturesground
         : "Can't move";
 
-    const water = (m.waterlo && m.waterhi)
-        ? randbetween(m.waterlo, m.waterhi)
+    const water = (m.namedcreatureswater)
+        ? m.namedcreatureswater
         : "Will drown";
 
-    const air = (m.airlo && m.airhi)
-        ? randbetween(m.airlo, m.airhi)
+    const air = (m.namedcreaturesair)
+        ? m.namedcreaturesair
         : "Will fall";
 
     text += `\nMovement: Ground: ${ground} | Water: ${water} | Air: ${air}`;
@@ -96,21 +92,20 @@ function renderintelligenceandmovement() {
     return el;
 }
 
-function rendersocialrules() {
-    const m = currentcreature.meta;
+function rendersocialrules(species) {
     let text = 'Social Rules\n';
 
-    const lured = m.lured && m.lured !== 'No' ? 'Can be lured' : 'Cannot be lured';
-    const tamed = m.tamed && m.tamed !== 'No' ? 'Can be tamed' : 'Cannot be tamed';
-    const bond = m.bond && m.bond !== 'No' ? 'Can bond' : 'Cannot bond';
+    const lured = species.meta.lured && species.meta.lured !== 'No' ? 'Can be lured' : 'Cannot be lured';
+    const tamed = species.meta.tamed && species.meta.tamed !== 'No' ? 'Can be tamed' : 'Cannot be tamed';
+    const bond = species.meta.bond && species.meta.bond !== 'No' ? 'Can bond' : 'Cannot bond';
 
     text += `${lured} | ${tamed} | ${bond}`;
 
-    if (m.independence)
-        text += `\nIndependence: ${m.independence}`;
+    if (species.meta.independence)
+        text += `\nIndependence: ${species.meta.independence}`;
 
-    if (m.addtlrules)
-        text += `\nAdditional Rules: ${m.addtlrules}`;
+    if (species.meta.addtlrules)
+        text += `\nAdditional Rules: ${species.meta.addtlrules}`;
 
     const el = document.createElement('div');
     el.classList.add('creature-section', 'socialrules');

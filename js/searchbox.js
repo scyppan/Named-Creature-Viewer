@@ -11,7 +11,7 @@ async function initsearchbox() {
     searchbox.classList.remove('hidden');
 }
 
-function handlesearchinput(e) {console.log(e);
+function handlesearchinput(e) {
     const query = e.target.value.trim();
 
     // Remove old suggestions
@@ -22,12 +22,10 @@ function handlesearchinput(e) {console.log(e);
     getsuggestions(query, e);
 }
 
-function getsuggestions(query, e) {console.log(query)
+function getsuggestions(query, e) {
     const results = Object.values(named).filter(c =>
         c.meta.namedcreaturesname && c.meta.namedcreaturesname.toLowerCase().includes(query.toLowerCase())
     );
-
-console.log(results);
 
     showresults(results, e);
 }
