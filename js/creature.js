@@ -8,7 +8,7 @@ function loadcreature(named) {
     const container = document.getElementById("creaturecontainer");
     container.innerHTML = ''; // clear old content
 
-    const species = c.meta?.namedcreaturesspecies;
+    const species = currentnamed.meta?.namedcreaturesspecies;
     const matchingspecies = Object.values(creatures).filter(cr =>
         cr.meta?.creaturename === c.meta?.namedcreaturesspecies
     );
