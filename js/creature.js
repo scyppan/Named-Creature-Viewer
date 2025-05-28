@@ -1,7 +1,7 @@
 let currentnamed;
 
 function loadcreature(named) {
-    currentnamed=named;
+    currentnamed = named;
 
     const container = document.getElementById("creaturecontainer");
     container.innerHTML = ''; // clear old content
@@ -15,7 +15,7 @@ function loadcreature(named) {
     container.appendChild(renderdescription(matchingspecies));
     container.appendChild(renderintelligenceandmovement());
     container.appendChild(rendersocialrules(matchingspecies));
-    //container.appendChild(renderabilities());
+    container.appendChild(renderabilities(matchingspecies));
     //container.appendChild(renderattacks());
 
     window.parent.postMessage(
@@ -25,9 +25,9 @@ function loadcreature(named) {
 }
 
 function randbetween(lo, hi) {
-  lo = parseInt(lo);
-  hi = parseInt(hi);
-  return Math.floor(Math.random() * (hi - lo + 1)) + lo;
+    lo = parseInt(lo);
+    hi = parseInt(hi);
+    return Math.floor(Math.random() * (hi - lo + 1)) + lo;
 }
 
 function renderdemographics(species) {
@@ -150,31 +150,35 @@ function adjustRange(lo, hi, category) {
     return [newLo, newHi];
 }
 
-function pickRating() {
-    const pct = randbetween(1, 100);
-    if (pct < 10) return 'inept';
-    if (pct < 25) return 'unskilled';
-    if (pct > 90) return 'exceptional';
-    if (pct > 75) return 'skilled';
-    return 'typical';
-}
-
-function renderabilities() {
-    const abilities = currentcreature.meta.creatureability || [];
+function renderabilities(species) {
+    const abilities = species.meta.creatureability || [];
     const el = document.createElement('div');
     el.classList.add('creature-section', 'abilities');
     el.textContent = 'Abilities';
+
+    let modslist = [];
+    if (currentnamed.meta.specialability) {
+        for (let i = 0; i < currentnamed.meta.specialability.length; i++) {
+            modslist.push({
+                ability: currentnamed.meta.specialability[i],
+                mod: currentnamed.meta.abilitymod[i]
+            });
+        }
+    }
 
     abilities.forEach((name, i) => {
         const wrapper = document.createElement('div');
         const btn = document.createElement('button');
         const res = document.createElement('span');
-        const desc = currentcreature.meta.abilitydescription?.[i] || '';
+        const desc = species.meta.abilitydescription?.[i] || '';
         const baseLines = [name, desc].filter(Boolean).join('\n');
 
-        // 1) pick a static rating now
-        const rating = pickRating();
-        const capRating = capitalize(rating);
+        // 1) Find mod
+        const modentry = modslist.find(m => m.ability === name);
+        let capRating = "Typical";
+        if (modentry) {
+            capRating = modentry.mod;
+        }
 
         // 2) build tooltip with rating at the top
         btn.title = `${name} (${capRating})` + (baseLines ? '\n' + baseLines : '');
@@ -182,8 +186,8 @@ function renderabilities() {
         btn.textContent = name;
         btn.addEventListener('click', () => {
             // 3) use the same rating for every roll of this button
-            const lo = parseInt(currentcreature.meta.creatureabilitylo?.[i]);
-            const hi = parseInt(currentcreature.meta.creatureabilityhi?.[i]);
+            const lo = parseInt(species.meta.creatureabilitylo?.[i]);
+            const hi = parseInt(species.meta.creatureabilityhi?.[i]);
             if (isNaN(lo) || isNaN(hi)) {
                 res.textContent = ' — Invalid range';
                 return;
@@ -194,7 +198,7 @@ function renderabilities() {
             res.textContent = ` → ${rolled}`;
 
             window.parent.postMessage(
-                `A ${currentcreature.meta.creaturename} rolls ${rolled} on ${name} [${capRating}] (range ${adjLo}–${adjHi}).`,
+                `A ${currentnamed.meta.namedcreaturesname} the ${species.meta.creaturename} rolls ${rolled} on ${name} [${capRating}] (range ${adjLo}–${adjHi}).`,
                 '*'
             );
         });
@@ -207,24 +211,34 @@ function renderabilities() {
     return el;
 }
 
-function renderattacks() {
-    const attacks = currentcreature.meta.creatureattack || [];
+function renderattacks(species) {
+    const attacks = species.meta.creatureattack || [];
     const el = document.createElement('div');
     el.classList.add('creature-section', 'attacks');
     el.textContent = 'Attacks';
+
+    let modslist = [];
+    if (currentnamed.meta.specialattack) {
+        for (let i = 0; i < currentnamed.meta.specialattack.length; i++) {
+            modslist.push({
+                attack: currentnamed.meta.specialattack[i],
+                mod: currentnamed.meta.attackmod[i]
+            });
+        }
+    }
 
     attacks.forEach((name, i) => {
         const wrapper = document.createElement('div');
         const btn = document.createElement('button');
         const res = document.createElement('span');
 
-        const desc = currentcreature.meta.attackdescription?.[i] || '';
-        const iwtype = currentcreature.meta.immediatewoundtype?.[i];
-        const iwamt = currentcreature.meta.immediatewoundamtnum?.[i];
-        const iwcat = currentcreature.meta.immediatewoundamtcat?.[i];
-        const dotwtype = currentcreature.meta.dotwoundtype?.[i];
-        const dotwamt = currentcreature.meta.dotwoundamtnum?.[i];
-        const dotwcat = currentcreature.meta.dotwoundamtcat?.[i];
+        const desc = species.meta.attackdescription?.[i] || '';
+        const iwtype = species.meta.immediatewoundtype?.[i];
+        const iwamt = species.meta.immediatewoundamtnum?.[i];
+        const iwcat = species.meta.immediatewoundamtcat?.[i];
+        const dotwtype = species.meta.dotwoundtype?.[i];
+        const dotwamt = species.meta.dotwoundamtnum?.[i];
+        const dotwcat = species.meta.dotwoundamtcat?.[i];
 
         // build the base tooltip (without rating)
         const parts = [name];
@@ -233,17 +247,20 @@ function renderattacks() {
         if (dotwtype) parts.push(`Damage over Time: ${dotwamt} ${dotwcat} (${dotwtype})`);
         const base = parts.join('\n');
 
-        // 1) pick a static rating now
-        const rating = pickRating();
-        const capRating = capitalize(rating);
+        // 1) Find mod
+        const modentry = modslist.find(m => m.ability === name);
+        let capRating = "Typical";
+        if (modentry) {
+            capRating = modentry.mod;
+        }
 
         // 2) build tooltip with rating at the top
         btn.title = `${name} (${capRating})` + (base ? '\n' + base : '');
 
         btn.textContent = name;
         btn.addEventListener('click', () => {
-            const lo = parseInt(currentcreature.meta.creatureattacklo?.[i]);
-            const hi = parseInt(currentcreature.meta.creatureattackhi?.[i]);
+            const lo = parseInt(species.meta.creatureattacklo?.[i]);
+            const hi = parseInt(species.meta.creatureattackhi?.[i]);
             if (isNaN(lo) || isNaN(hi)) {
                 res.textContent = ' — Invalid range';
                 return;
@@ -254,7 +271,7 @@ function renderattacks() {
             res.textContent = ` → ${rolled}`;
 
             // send the same postMessage as before
-            const cname = currentcreature.meta.creaturename;
+            const cname = `${currentnamed.meta.namedcreaturesname} the ${curretnamed.meta.namedcreaturesspecies}`;
             const an = /^[aeiou]/i.test(cname) ? 'an' : 'a';
             let msg = `${an} ${cname} attempts a ${name} [${capRating}] with a set value of ${rolled}.`;
             if (iwtype && dotwtype) {
