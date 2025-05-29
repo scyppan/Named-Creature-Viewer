@@ -273,7 +273,7 @@ function renderattacks(species) {
             // send the same postMessage as before
             const cname = `${currentnamed.meta.namedcreaturesname} the ${curretnamed.meta.namedcreaturesspecies}`;
             const an = /^[aeiou]/i.test(cname) ? 'an' : 'a';
-            let msg = `${an} ${cname} attempts a ${name} [${capRating}] with a set value of ${rolled}.`;
+            let msg = `${cname} attempts a ${name} [${capRating}] with a set value of ${rolled}.`;
             if (iwtype && dotwtype) {
                 msg += ` If successful, the attack causes ${iwamt} ${iwcat} wound(s) of ${iwtype} damage, and over time, ${dotwamt} ${dotwcat} wound(s) of ${dotwtype} damage.`;
             } else if (iwtype) {
