@@ -19,7 +19,7 @@ function loadcreature(named) {
     container.appendChild(renderattacks(matchingspecies));
 
     window.parent.postMessage(
-        { eventtype: 'charassigned', name: currentnamed.meta.namedcreaturesname },
+        { eventtype: 'charassigned', name: `${currentnamed.meta.namedcreaturesname} the ${currentnamed.meta.namedcreaturesspecies}`  },
         '*'
     );
 }
