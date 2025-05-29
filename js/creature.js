@@ -16,7 +16,7 @@ function loadcreature(named) {
     container.appendChild(renderintelligenceandmovement());
     container.appendChild(rendersocialrules(matchingspecies));
     container.appendChild(renderabilities(matchingspecies));
-    //container.appendChild(renderattacks());
+    container.appendChild(renderattacks(matchingspecies));
 
     window.parent.postMessage(
         { eventtype: 'charassigned', name: currentnamed.meta.namedcreaturesname },
@@ -193,7 +193,7 @@ function renderabilities(species) {
                 return;
             }
 
-            const [adjLo, adjHi] = adjustRange(lo, hi, rating);
+            const [adjLo, adjHi] = adjustRange(lo, hi, capRating.toLowerCase());
             const rolled = randbetween(adjLo, adjHi);
             res.textContent = ` → ${rolled}`;
 
@@ -266,7 +266,7 @@ function renderattacks(species) {
                 return;
             }
 
-            const [adjLo, adjHi] = adjustRange(lo, hi, rating);
+            const [adjLo, adjHi] = adjustRange(lo, hi, capRating.toLowerCase());
             const rolled = randbetween(adjLo, adjHi);
             res.textContent = ` → ${rolled}`;
 
